@@ -6,7 +6,12 @@ from statsmodels.distributions import ECDF
 from math import pi, sqrt
 
 
+# Authors: Thomas van der Jagt, Jeroen Faas
+
+
 def gs_sphere(x):
+    # Author: Thomas van der Jagt
+
     c = (9*pi/16)**(1./3)
     y = np.zeros(len(x))
     indices = x*x < c
@@ -15,6 +20,8 @@ def gs_sphere(x):
 
 
 def sphere_G(x):
+    # Author: Thomas van der Jagt
+
     R = (3./(4*pi))**(1./3)
     y = np.zeros(len(x))
     y[x >= sqrt(pi)*R] = 1
@@ -24,6 +31,8 @@ def sphere_G(x):
 
 
 def de_bias_sphere(x_pts, estimate, G_cdf):
+    # Author: Thomas van der Jagt
+
     n = len(x_pts)
     observed_x = np.linspace(0, 1, n)
     distances = np.zeros(n)
@@ -64,6 +73,8 @@ def de_bias(x_pts, estimate, reference_sample):
     distribution functions. The CDF is constant on [x_pts[i],x_pts[i+1]). Here: [a,b) = {x: a <= x < b}.
         y_pts[i] is the CDF value in x_pts[i].
     """
+    # Author: Thomas van der Jagt
+
     n = len(x_pts)
     observed_x = np.linspace(0, 1, n)
     distances = np.zeros(n)
@@ -90,144 +101,6 @@ def de_bias(x_pts, estimate, reference_sample):
     return h_est
 
 
-# def de_bias_AV_older(x_pts, v_pts, estimate, reference_sample):
-#     """
-#     A separate function which performs the de-biasing step which may also be performed by the function
-#     pysizeunfolder.estimate_size_AV after the optimization procedure. This function is an altered version of "de_bias",
-#     incorporating number of vertices data.
-#
-#     :param x_pts: A numpy.ndarray of shape (n,) representing the points at which the CDF is evaluated. Such as x_pts
-#         returned by the function pysizeunfolder.estimate_size_AV.
-#     :param v_pts: A numpy.ndarray of shape (n,) representing the number of vertices corresponding to a point in "x_pts".
-#         Such as v_pts returned by the function pysizeunfolder.estimate_size_AV.
-#     :param estimate: A numpy.ndarray of shape (n,) representing the values the biased CDF takes in x_pts. Such as y_pts
-#         returned by the function pysizeunfolder.estimate_size_AV.
-#     :param reference_sample: A sample of pairs of section profile areas and numbers of vertices of the reference shape,
-#         in a list of two numpy.ndarrays of shape (N,), the first containing areas and the second containing numbers of
-#         vertices, where N is the sample size. Ideally N is very large.
-#     :return: y_pts: a numpy.ndarray of shape (n,). This array represents a piece-wise constant distribution function,
-#         which is the unbiased version of the input function "estimate". The CDF is constant on [x_pts[i],x_pts[i+1]).
-#         Here: [a,b) = {x: a <= x < b}. y_pts[i] is the CDF value in x_pts[i].
-#     """
-#     n = len(x_pts)
-#     Vmax = reference_sample[1].max()
-#     Pv = []
-#     G_per_v_cdf = []
-#     for v in range(Vmax - 2):
-#         Pv.append(sum(reference_sample[1] - 3 <= v) / len(reference_sample[1]))  # Probability that V <= v + 3.
-#         G_per_v_cdf.append(ECDF(np.sqrt(reference_sample[0][reference_sample[1] - 3 <= v])))
-#
-#     Hb_probabilities = np.append(estimate[0], np.diff(estimate))  # ^H_n^b(s_(j)) - ^H_n^b(s_(j-1)) for all j.
-#     FS_estimates = np.zeros((n, n))
-#     for i in range(n):
-#         # kernel: G_K(s_i / s_(j), v_i) * P(V <= v) for all s_(j).
-#         kernel = G_per_v_cdf[v_pts[i]-3](x_pts[i] / x_pts) * Pv[v_pts[i]-3]
-#         divisor = np.cumsum(np.flip(Hb_probabilities))
-#         divisor[divisor == 0.0] = 1.0
-#         FS_estimates[:, i] = np.flip(np.cumsum(np.flip(kernel * Hb_probabilities)) / divisor)  # ^F_n(s_i, v_i)
-#
-#     observed_x = np.linspace(0, 1, n)
-#     distances = np.zeros(n)
-#     for i in range(n):
-#         term1 = np.abs(observed_x - FS_estimates[i, :])[:(n - 1)]
-#         term2 = np.abs(observed_x[1:] - FS_estimates[i, :(n - 1)])
-#         distances[i] = 0.5 * np.dot(term1 + term2, np.diff(x_pts))
-#
-#     # Truncate start of the estimate until trunc_ix.
-#     trunc_ix = np.argmin(distances)  # Truncation param ^t_n = x_pts[trunc_ix] = s_(trunc_ix)
-#     temp_hb = np.copy(Hb_probabilities)
-#     temp_hb[:trunc_ix] = 0.0  # Truncated ^H_n^b
-#
-#     h_est = np.cumsum(temp_hb / x_pts)  # Numerator of truncated ^H_n
-#     h_est = h_est / h_est[-1]  # Truncated ^H_n
-#     return h_est
-
-
-# def de_bias_AV_old(x_pts, v_pts, estimate, reference_sample):
-#     """
-#     A separate function which performs the de-biasing step which may also be performed by the function
-#     pysizeunfolder.estimate_size_AV after the optimization procedure. This function is an altered version of "de_bias",
-#     incorporating number of vertices data.
-#
-#     :param x_pts: A numpy.ndarray of shape (n,) representing the points at which the CDF is evaluated. Such as x_pts
-#         returned by the function pysizeunfolder.estimate_size_AV.
-#     :param v_pts: A numpy.ndarray of shape (n,) representing the number of vertices corresponding to a point in "x_pts".
-#         Such as v_pts returned by the function pysizeunfolder.estimate_size_AV.
-#     :param estimate: A numpy.ndarray of shape (n,) representing the values the biased CDF takes in x_pts. Such as y_pts
-#         returned by the function pysizeunfolder.estimate_size_AV.
-#     :param reference_sample: A sample of pairs of section profile areas and numbers of vertices of the reference shape,
-#         in a list of two numpy.ndarrays of shape (N,), the first containing areas and the second containing numbers of
-#         vertices, where N is the sample size. Ideally N is very large.
-#     :return: y_pts: a numpy.ndarray of shape (n,). This array represents a piece-wise constant distribution function,
-#         which is the unbiased version of the input function "estimate". The CDF is constant on [x_pts[i],x_pts[i+1]).
-#         Here: [a,b) = {x: a <= x < b}. y_pts[i] is the CDF value in x_pts[i].
-#     """
-#     n = len(x_pts)
-#     Vmax = reference_sample[1].max()
-#
-#     # Compute matrix for ~G_K:
-#     s_mat = np.broadcast_to(x_pts, (n, n))
-#     s_frac_mat = s_mat.T / s_mat
-#     G_estimates = np.zeros((Vmax - 2, n, n), dtype=float)  # Entry j,k,l: ~G_K(s_k / s_l, v_j)
-#     for v in range(Vmax - 2):
-#         Pv = sum(reference_sample[1] - 3 <= v) / len(reference_sample[1])  # Probability that V <= v + 3.
-#         G_per_v_cdf = ECDF(np.sqrt(reference_sample[0][reference_sample[1] - 3 <= v]))  # Emperical approx ~G_K(., v)
-#         # Compute all entries with v vertices.
-#         G_estimates[v] = np.reshape(G_per_v_cdf(s_frac_mat.flatten()), (n, n)) * Pv
-#
-#     # Compute matrix for truncated ^H_n^b:
-#     Hb_truncated = np.zeros((n, n + 1), dtype=float)  # Entry i,l+1: ^H_n^b(s_l; t = s_i)
-#     for i in range(n-1):
-#         if estimate[i] < 1:
-#             # Truncated Hb only nonzero if s_l > s_i <=> l > i.
-#             # est[i] = ^H_n^b(s_i) => Entry i,l+1: (est[l] - est[i]) / (1 - est[i])
-#             Hb_truncated[i, i+2:] = (estimate[i+1:] - estimate[i]) / (1 - estimate[i])
-#     # Compute matrix for diffs in consecutive entries along last axis.
-#     Hb_probabilities = np.diff(Hb_truncated)  # Entry i,l: ^H_n^b(s_l; s_i) - ^H_n^b(s_l-1; s_i)
-#
-#     # # (OLD) Compute matrices for ^F_n and Fbar_n:
-#     # F_estimates = np.zeros((n, Vmax-2, n), dtype=float)  # Entry i,j,k: ^F_n(s_k, v_j; t = s_i)
-#     # Fbar = np.zeros((Vmax-2, n), dtype=int)  # Entry j,k: Fbar_n(s_k, v_j)
-#     # for k in range(n):
-#     #     for j in range(Vmax - 2):
-#     #         for i in range(n):
-#     #             F_estimates[i, j, k] = sum(G_estimates[j, k] * Hb_probabilities[i])
-#     #             Fbar[j, k] += (i <= k) * (v_pts[i]-3 <= j)
-#     # Fbar = Fbar / n
-#
-#     # Compute matrix for ^F_n:
-#     # Entry i,j,k: ^F_n(s_k, v_j; t = s_i) = sum{l}(G_estimates[j, k, l] * Hb_probabilities[i, l])
-#     F_estimates = np.einsum('jkl,il->ijk', G_estimates, Hb_probabilities)
-#
-#     # Compute matrix for Fbar_n:
-#     # Create masks for broadcasted logic: (v_pts[i] - 3 <= j) and (i <= k)
-#     v_idx = np.arange(Vmax - 2)[:, None]  # shape (Vmax-2, 1)
-#     mask_v = (v_pts[None, :] - 3) <= v_idx  # shape (Vmax-2, n)
-#
-#     i_idx = np.arange(n)[:, None]  # shape (n, 1)
-#     k_idx = np.arange(n)[None, :]  # shape (1, n)
-#     mask_i = i_idx <= k_idx  # shape (n, n)
-#
-#     # Combine with einsum to compute counts of valid (i) for each (j,k)
-#     # Fbar[j, k] = sum over i: mask_v[j, i] * mask_i[i, k]
-#     Fbar = np.einsum('ji,ik->jk', mask_v, mask_i) / n  # Entry j,k: Fbar_n(s_k, v_j)
-#
-#     # Compute expression to minimise:
-#     distances = np.zeros(n, dtype=float)  # Entry i: Sum{v_j}(Sum{s_k}(|^F_n(s_k, v_j; t = s_i) - Fbar(s_k, v_j)|))
-#     for i in range(n):
-#         distances[i] = np.sum(np.abs(F_estimates[i] - Fbar))
-#
-#     # Assign truncation param ^t_n minimising distances:
-#     trunc_idx = np.argmin(distances)  # Truncation param ^t_n = x_pts[trunc_idx] = s_(trunc_idx)
-#     # Truncated ^H_n^b = Hb_truncated[trunc_idx, 1:]
-#
-#     # Compute truncated unbiased estimate ^H_n:
-#     # ^H_n^b(s_i; ^t_n) - ^H_n^b(s_i-1; ^t_n) = Hb_probabilities[trunc_idx, i]
-#     H_est = np.cumsum(Hb_probabilities[trunc_idx] / x_pts)  # Numerator of truncated ^H_n
-#     H_est /= H_est[-1]  # Truncated ^H_n
-#     return H_est
-
-
 def de_bias_AV(x_pts, v_pts, estimate, reference_sample):
     """
     A separate function which performs the de-biasing step which may also be performed by the function
@@ -247,6 +120,8 @@ def de_bias_AV(x_pts, v_pts, estimate, reference_sample):
         which is the unbiased version of the input function "estimate". The CDF is constant on [x_pts[i],x_pts[i+1]).
         Here: [a,b) = {x: a <= x < b}. y_pts[i] is the CDF value in x_pts[i].
     """
+    # Author: Jeroen Faas
+
     n = len(x_pts)
     Vmax = reference_sample[1].max()
     s_pts = np.linspace(x_pts.min(), x_pts.max(), n)  # Evenly spaced s-values, used for s_k; x_pts used for s_l & s_i.
@@ -285,26 +160,14 @@ def de_bias_AV(x_pts, v_pts, estimate, reference_sample):
     Fbar = Fbar / n
 
     # Compute expression to minimise:
-    # distances = np.zeros(n, dtype=float)  # Entry i: Sum{v_j}(Sum{s_k}(|^F_n(s_k, v_j; t = s_i) - Fbar(s_k, v_j)|))
-    distances = np.zeros(200, dtype=float)  # Entry i: Sum{v_j}(Sum{s_k}(|^F_n(s_k, v_j; t = s_i) - Fbar(s_k, v_j)|))
-    # condition = np.zeros(n)  # Condition to prevent low x_pts values from exploding the estimate.
-    condition = np.zeros(200)  # Condition to prevent low x_pts values from exploding the estimate.
-    cond_met = False  # TO BE REMOVED
-    f = open(f"outputlog{Vmax}.txt", "a")  # TO BE REMOVED
-    # for i in range(n):
-    for i in range(200):
+    distances = np.zeros(n, dtype=float)  # Entry i: Sum{v_j}(Sum{s_k}(|^F_n(s_k, v_j; t = s_i) - Fbar(s_k, v_j)|))
+    condition = np.zeros(n)  # Condition to prevent low x_pts values from exploding the estimate.
+    for i in range(n):
         distances[i] = np.sum(np.abs(F_estimates[i] - Fbar))
         condition[i] = (Hb_probabilities[0, i] / x_pts[i] < 3*Hb_probabilities[0].max())
-        # TO BE REMOVED
-        if condition[i] == False:
-            f.write(f"{i}:\t{Hb_probabilities[0, i]} / {x_pts[i]} > 3*{Hb_probabilities[0].max()}\t")
-            cond_met = True
-    f.write(f"Done! Condition {(not cond_met) * 'not'} met\n")  # TO BE REMOVED
-    f.close()  # TO BE REMOVED
 
     # Assign truncation param ^t_n at last index (meeting the condition) that minimises distances:
-    # trunc_idx = n - 1 - np.argmin(np.flip(distances[np.argmin(condition):]))
-    trunc_idx = 200 - 1 - np.argmin(np.flip(distances[np.argmin(condition):]))
+    trunc_idx = n - 1 - np.argmin(np.flip(distances[np.argmin(condition):]))
     # Truncation param ^t_n = x_pts[trunc_idx] = s_(trunc_idx)
 
     # Compute truncated unbiased estimate ^H_n:
@@ -350,6 +213,8 @@ def estimate_size(observed_areas, reference_sample, debias=True, algorithm="icm_
         constant distribution function. The CDF is constant on [x_pts[i],x_pts[i+1]). Here: [a,b) = {x: a <= x < b}.
         y_pts[i] is the CDF value in x_pts[i].
     """
+    # Author: Thomas van der Jagt
+
     sqrt_sample = np.sqrt(observed_areas)
     n = len(sqrt_sample)
     rng = np.random.default_rng(0)
@@ -435,6 +300,8 @@ def estimate_size_AV(observed_data, reference_sample, debias=True, algorithm="ic
             Here: [a,b) = {x: a <= x < b}. y_pts[i] is the CDF value in x_pts[i]. "v_pts" is the number of vertices
             corresponding to the original data point of "x_pts".
     """
+    # Author: Jeroen Faas
+
     n = len(observed_data[0])
     Smax = np.sqrt(reference_sample[0].max())
     Vmax = int(reference_sample[1].max())
@@ -520,6 +387,8 @@ def error_estimate(x_true, y_true, x_est, y_est):
     :return: A numpy.ndarray of shape (k,), where entry i contains the supremum distance between the estimate step
             function "(x_est[i], y_est[i])" and the true function "(x_true, y_true)".
     """
+    # Author: Jeroen Faas
+
     error_sup = np.zeros(len(x_est), dtype=float)
     indices = np.zeros(len(x_est), dtype=int)
 
@@ -537,65 +406,3 @@ def error_estimate(x_true, y_true, x_est, y_est):
                 error_sup[j] = error
 
     return error_sup
-
-
-def error_pairwise_estimate(x_true, y_true, x_est, y_est_a, y_est_b):
-    """
-    Method to evaluate the estimation performances of two methods: "a" and "b". Calculates the pairwise errors, defined
-    as the extreme values of the pointwise difference in distances from each estimate step function to the true
-    function: inf/sup( |y_est_a - y_true| - |y_est_b - y_true| ). Distances between functions are evaluated at the
-    x-coordinates of the given "x_true" array.
-    :param x_true: A numpy.ndarray of shape (m,), containing the x-coordinates for the true function values in "y_true".
-    :param y_true: A numpy.ndarray of shape (m,), containing the true function values at the x-coordinates in "x_true".
-    :param x_est: A numpy.ndarray of shape (k, n), where row i out of k contains the x-coordinates of jump locations for
-            the i-th pair of estimate functions with jump values in "y_est_a[i]" and "y_est_b[i]".
-    :param y_est_a: A numpy.ndarray of shape (k, n), where row i out of k contains the jump values for the i-th estimate
-            function from method a, with jump locations at the x-coordinates in "x_est[i]", the same as "y_est_b".
-    :param y_est_b: A numpy.ndarray of shape (k, n), where row i out of k contains the jump values for the i-th estimate
-            function from method b, with jump locations at the x-coordinates in "x_est[i]", the same as "y_est_a".
-    :return: A numpy.ndarray of shape (2, k), where column i contains the infimum (entry [0, i]) and supremum
-            (entry [1, i]) of the pointwise difference in distances from each estimate step function,
-            "(x_est[i], y_est_a[i])" and "(x_est[i], y_est_b[i])", and the true function "(x_true, y_true)". If the
-            infimum is negative, method a improves over method b in some point. If the supremum is negative, method a
-            improves over method b in all points. If the supremum is positive, method b improves over method a in some
-            point. If the infimum is positive, method b improves over method a in all points.
-    """
-    k, n = x_est.shape
-    error_inf = np.ones(k, dtype=float)
-    error_sup = -np.ones(k, dtype=float)
-    indices = np.zeros(k, dtype=int)
-
-    for i in range(n):
-        # For each point x_est_i of evaluation
-        for j in range(k):
-            # For each esimate (x_est_j, y_est_a/b_j)
-            while x_true[indices[j]] <= x_est[j, i]:
-                indices[j] += 1
-        # Points(!) of evaluation for j-th estimate:
-        #  1) (x_true[indices[j]], y_true[indices[j]]) vs (x_est[j, i], y_est_a/b[j, i])
-        #  2) (x_true[indices[j]-1], y_true[indices[j]-1]) vs (x_est[j, i-1], y_est_a/b[j, i-1])
-        if i < n-1:
-            # Evaluate error_a - error_b at (1)
-            error_diffs_1 = np.abs(y_true[indices] - y_est_a[:, i]) - np.abs(y_true[indices] - y_est_b[:, i])
-        else:
-            error_diffs_1 = None
-        if i > 0:
-            # Evaluate error_a - error_b at (2)
-            error_diffs_2 = np.abs(y_true[indices-1] - y_est_a[:, i-1]) - np.abs(y_true[indices-1] - y_est_b[:, i-1])
-        else:
-            error_diffs_2 = None
-
-        for j in range(k):
-            # Update inf/sup values if necessary:
-            if error_diffs_1 is not None:
-                if error_diffs_1[j] < error_inf[j]:
-                    error_inf[j] = error_diffs_1[j]
-                if error_diffs_1[j] > error_sup[j]:
-                    error_sup[j] = error_diffs_1[j]
-            if error_diffs_2 is not None:
-                if error_diffs_2[j] < error_inf[j]:
-                    error_inf[j] = error_diffs_2[j]
-                if error_diffs_2[j] > error_sup[j]:
-                    error_sup[j] = error_diffs_2[j]
-
-    return np.stack([error_inf, error_sup])

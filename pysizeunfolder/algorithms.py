@@ -2,10 +2,12 @@ from sklearn.isotonic import IsotonicRegression
 import numpy as np
 
 
-# Author: Thomas van der Jagt
+# Authors: Thomas van der Jagt, Jeroen Faas
 
 
 def gcm_slope(rawslope, dx):
+    # Authors: Thomas van der Jagt, Jeroen Faas (modified)
+
     slope = np.zeros_like(rawslope)
     # Locate valid (not NaN or infinty) entries.
     valid_input = ~np.isnan(rawslope) & ~np.isinf(rawslope) & (dx > 0)
@@ -25,14 +27,20 @@ def gcm_slope(rawslope, dx):
 
 
 def likelihoods_vector(a_matrix, distribution_vector):
+    # Author: Thomas van der Jagt
+
     return np.dot(a_matrix, np.append(distribution_vector[0], np.diff(distribution_vector)))
 
 
 def likelihoods_vector_sparse(a_matrix, distribution_vector, indices):
+    # Author: Thomas van der Jagt
+
     return np.dot(a_matrix[:, indices], np.diff(np.append(0, distribution_vector))[indices])
 
 
 def hybrid_icm_em(a_matrix, estimate_init=None, tol=0.0001, stop_iterations=10):
+    # Authors: Thomas van der Jagt, Jeroen Faas (modified)
+
     epsilon = 0.25
     n = a_matrix.shape[0]
     if estimate_init is None:
@@ -141,6 +149,8 @@ def hybrid_icm_em(a_matrix, estimate_init=None, tol=0.0001, stop_iterations=10):
 
 
 def icm(a_matrix, estimate_init=None, tol=0.0001, stop_iterations=10):
+    # Author: Thomas van der Jagt
+
     epsilon = 0.25
     n = a_matrix.shape[0]
     if estimate_init is None:
@@ -229,6 +239,8 @@ def icm(a_matrix, estimate_init=None, tol=0.0001, stop_iterations=10):
 
 
 def em(a_matrix, estimate_init=None, iterations=None):
+    # Author: Thomas van der Jagt
+
     n = a_matrix.shape[0]
     if estimate_init is None:
         estimate = np.ones(n)/n
