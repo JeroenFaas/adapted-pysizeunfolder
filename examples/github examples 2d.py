@@ -5,6 +5,9 @@ from matplotlib.collections import LineCollection
 from matplotlib.collections import PolyCollection
 
 
+# Author: Thomas van der Jagt
+
+
 # Example 1
 
 rng = np.random.default_rng(0)

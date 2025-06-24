@@ -6,9 +6,9 @@ from joblib import Parallel, delayed
 import pickle
 
 
-# Author: Thomas van der Jagt
+# Authors: Thomas van der Jagt, Jeroen Faas (modified)
 
-shape = "tetrahedron"  # "tetrahedron" / "cube" / "dodecahedron"
+shape = "cube"  # "tetrahedron" / "cube" / "dodecahedron"
 n = 10000000
 
 if shape == "cube":
@@ -60,14 +60,8 @@ for i in range(num_cpus):
 # Obtain the number of vertices for each section.
 num_verts = pu.number_vertices(secs)
 
-# Obtain the aspect ratio for each section.
-# ratios = np.zeros(n, dtype=float)
-# for i in range(n):
-#     # Aspect ratio for each section:
-#     ratios[i] = pu.aspect_ratio(secs[i])
-
-f = open(f"{shape}_sample({int(np.log10(n))}).pkl", "wb")
-pickle.dump([areas, num_verts], f)  # Include/Exclude aspect ratios.
+f = open(f"{shape}_sample({n}).pkl", "wb")
+pickle.dump([areas, num_verts], f)
 f.close()
 
 # x, y = pu.approx_area_density(areas)

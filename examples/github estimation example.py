@@ -6,10 +6,13 @@ import pickle
 from scipy.stats import expon, gamma, lognorm
 
 
+# Authors: Thomas van der Jagt (1), Jeroen Faas (2-6) (modified 1)
+
+
 ####################################### Example 1: st exp-distr based on A #############################################
 rng = np.random.default_rng(0)
-reference_sample = pickle.load(open("examples/cube_sample_areas7.pkl", "rb"))  # CUBE
-# reference_sample = pickle.load(open("examples/dodecahedron_sample_areas7.pkl", "rb"))  # DODECAHEDRON
+reference_sample = pickle.load(open("examples/cube_sample.pkl", "rb"))[0]  # CUBE
+# reference_sample = pickle.load(open("examples/dodecahedron_sample.pkl", "rb"))[0]  # DODECAHEDRON
 n = 1000
 
 # Generate a sample of observed section areas (Lemma 2), given that particles are cubes and the
@@ -78,8 +81,8 @@ y_pts = pu.de_bias(x_pts_biased, y_pts_biased, reference_sample)  # x_pts=x_pts_
 
 ##################################### Example 2: lognormal-distr based on A ############################################
 rng = np.random.default_rng(0)
-# reference_sample = pickle.load(open("examples/cube_sample_areas7.pkl", "rb"))  # CUBE
-reference_sample = pickle.load(open("examples/dodecahedron_sample_areas7.pkl", "rb"))  # DODECAHEDRON
+# reference_sample = pickle.load(open("examples/cube_sample.pkl", "rb"))[0]  # CUBE
+reference_sample = pickle.load(open("examples/dodecahedron_sample.pkl", "rb"))[0]  # DODECAHEDRON
 n = 1000
 
 # Generate a sample of observed section areas (Lemma 2), given that particles are cubes/dodecahedra
@@ -136,8 +139,8 @@ plt.close()
 
 ####################################### Example 3: st exp-distr based on A & V #########################################
 rng = np.random.default_rng(0)
-# reference_sample = pickle.load(open("examples/cube_sample7.pkl", "rb"))  # CUBE
-reference_sample = pickle.load(open("examples/dodecahedron_sample7.pkl", "rb"))  # DODECAHEDRON
+# reference_sample = pickle.load(open("examples/cube_sample.pkl", "rb"))  # CUBE
+reference_sample = pickle.load(open("examples/dodecahedron_sample.pkl", "rb"))  # DODECAHEDRON
 n = 1000
 
 # Generate a sample of observed section areas (Lemma 2), given that particles are cubes and the
@@ -195,8 +198,8 @@ plt.close()
 
 ###################################### Example 4: lognormal-distr based on A & V #######################################
 rng = np.random.default_rng(0)
-# reference_sample = pickle.load(open("examples/cube_sample7.pkl", "rb"))  # CUBE
-reference_sample = pickle.load(open("examples/dodecahedron_sample7.pkl", "rb"))  # DODECAHEDRON
+# reference_sample = pickle.load(open("examples/cube_sample.pkl", "rb"))  # CUBE
+reference_sample = pickle.load(open("examples/dodecahedron_sample.pkl", "rb"))  # DODECAHEDRON
 n = 1000
 
 # Generate a sample of observed section areas (Lemma 2), given that particles are cubes/dodecahedra
@@ -262,7 +265,7 @@ n = 1000  # 1000 / 2000 / 5000 / 10000
 repeat = 100  # 1 / 100
 ############ Do not alter below ############
 rng = np.random.default_rng(0)
-reference_sample = pickle.load(open(f"examples/{shape}_sample(7).pkl", "rb"))
+reference_sample = pickle.load(open(f"examples/{shape}_sample.pkl", "rb"))
 
 # Generate a sample of observed section areas (Lemma 3.1):
 sizes = np.zeros(repeat*n, dtype=float)
@@ -364,7 +367,7 @@ if n == 1000:
         plt.ylabel("CDF")
         plt.legend(loc="lower right")
         plt.tight_layout()
-        plt.savefig(f"{shape}_estimates_size_{distr}_{params}({int(np.log10(n))}x{repeat}).png", dpi=600)
+        plt.savefig(f"{shape}_estimates_size_{distr}_{params}({n}x{repeat}).png", dpi=600)
         plt.close()
 
 # Alternatively: skip the de-biasing step
@@ -421,11 +424,11 @@ if n == 1000:
         plt.ylabel("CDF")
         plt.legend(loc="lower right")
         plt.tight_layout()
-        plt.savefig(f"{shape}_estimates_biased_size_{distr}_{params}({int(np.log10(n))}x{repeat}).png", dpi=600)
+        plt.savefig(f"{shape}_estimates_biased_size_{distr}_{params}({n}x{repeat}).png", dpi=600)
         plt.close()
 
 # Save data for later analysis.
-f = open(f"{shape}_estimates_{distr}({int(np.log10(n))}x{repeat}).pkl", "wb")
+f = open(f"{shape}_estimates_{distr}({n}).pkl", "wb")
 if repeat > 1:
     pickle.dump([sizes, areas, v_pts, x_pts, y_pts_A, y_pts_AV, y_pts_biased_A, y_pts_biased_AV,
                  x_pts_avg, y_pts_A_avg, y_pts_AV_avg, y_pts_biased_A_avg, y_pts_biased_AV_avg], f)
@@ -436,11 +439,11 @@ f.close()
 # Plots from file data:
 # shape = "cube"  # "tetrahedron" / "cube" / "dodecahedron"
 # distr = "exp"  # "exp" / "lognorm"
-# n = 1000  # 1000 / 2000 / 5000 / 10000
 # repeat = 100  # 1 / 100
+# n = 1000
 # a = 0.2
 #
-# data = pickle.load(open(f"examples/{shape}_estimates_{distr}({np.log10(n):.0f}x{repeat}).pkl", "rb"))
+# data = pickle.load(open(f"examples/{shape}_estimates_{distr}({n}).pkl", "rb"))
 # x_pts = data[3]
 # y_pts_A = data[4]
 # y_pts_AV = data[5]
@@ -498,7 +501,7 @@ f.close()
 #     plt.ylabel("CDF")
 #     plt.legend(loc="lower right")
 #     plt.tight_layout()
-#     plt.savefig(f"{shape}_estimates_size_{distr}_{params}(3x100).png", dpi=600)
+#     plt.savefig(f"{shape}_estimates_size_{distr}_{params}({n}).png", dpi=600)
 #     plt.close()
 #
 # # The true biased size distribution CDF
@@ -530,86 +533,23 @@ f.close()
 #     plt.ylabel("CDF")
 #     plt.legend(loc="lower right")
 #     plt.tight_layout()
-#     plt.savefig(f"{shape}_estimates_biased_size_{distr}_{params}(3x100).png", dpi=600)
+#     plt.savefig(f"{shape}_estimates_biased_size_{distr}_{params}({n}).png", dpi=600)
 #     plt.close()
-
-
-########################################## Example 6: fixing regularisation & debias ###################################
-shape = "cube"  # "tetrahedron" / "cube" / "dodecahedron"
-N = [1000, 2000, 5000, 10000]  # [1000 / 2000 / 5000 / 10000]
-distr = "exp"
-############ Do not alter below ############
-repeat = 100
-reference_sample = pickle.load(open(f"examples/{shape}_sample(7).pkl", "rb"))
-Vmax = reference_sample[1].max()  # TO BE REMOVED
-
-N = np.array(N)
-Ntext = []
-tens = (N == 1000) + (N == 10000)
-for i in range(len(N)):
-    if tens[i]:
-        Ntext.append(f"{np.log10(N)[i]:.0f}")
-    else:
-        Ntext.append(f"{np.log10(N)[i]:.1f}")
-
-for n in range(len(N)):
-    data = pickle.load(open(f"examples/{shape}_estimates_{distr}({Ntext[n]}x{repeat}).pkl", "rb"))
-    # TO BE REMOVED
-    f = open(f"outputlog{Vmax}.txt", "a")
-    f.write(f"{0}\t{Ntext[n]}\t{distr}\t")
-    f.close()
-    # Saved data from Example 5:
-    # [0] = sizes, [1] = areas, [2] = v_pts, [3] = x_pts, [4] = y_pts_A, [5] = y_pts_AV,
-    # [6] = y_pts_biased_A, [7] = y_pts_biased_AV, [8] = x_pts_avg, [9] = y_pts_A_avg, [10] = y_pts_AV_avg,
-    # [11] = y_pts_biased_A_avg, [12] = y_pts_biased_AV_avg
-    for i in range(repeat):
-        data[5][i, 1:-1] = pu.de_bias_AV(data[3][i, 1:-1], data[2][i], data[7][i, 1:-1], reference_sample)
-
-        # Back-up before deleting real file
-        f = open(f"BACKUP-{shape}_estimates_{distr}({Ntext[n]}x{repeat}).pkl", "wb")
-        pickle.dump(data, f)
-        f.close()
-        # Delete old file
-        os.remove(f"examples/{shape}_estimates_{distr}({Ntext[n]}x{repeat}).pkl")
-        # Write to real file
-        f = open(f"examples/{shape}_estimates_{distr}({Ntext[n]}x{repeat}).pkl", "wb")
-        pickle.dump(data, f)
-        f.close()
-        # TO BE REMOVED
-        f = open(f"outputlog{Vmax}.txt", "a")
-        f.write(f"{i+1}\t{Ntext[n]}\t{distr}\t")
-        f.close()
-        # Once successful, delete back-up file
-        os.remove(f"BACKUP-{shape}_estimates_{distr}({Ntext[n]}x{repeat}).pkl")
-    # TO BE REMOVED
-    print(f"File done:\t{Ntext[n]}\t{distr}")
-    f = open(f"outputlog{Vmax}.txt", "a")
-    f.write(f"File done:\t{Ntext[n]}\t{distr}\n\n")
-    f.close()
 
 
 ############################################ Example 6: errors of estimates above ######################################
 shape = "cube"  # "tetrahedron" / "cube" / "dodecahedron"
 N = [1000, 2000, 5000, 10000]  # [1000 / 2000 / 5000 / 10000]
 ############ Do not alter below ############
-N = np.array(N)
-Ntext = []
-tens = (N == 1000) + (N == 10000)
-for i in range(len(N)):
-    if tens[i]:
-        Ntext.append(f"{np.log10(N)[i]:.0f}")
-    else:
-        Ntext.append(f"{np.log10(N)[i]:.1f}")
-
 repeat = 100
 i = 0
 mu, sigma = 2, 0.5
 errors = np.zeros((4*len(N), repeat), dtype=float)
 errors_biased = np.zeros((4*len(N), repeat), dtype=float)
 
-for n in range(len(N)):
+for n in N:
     for distr in ("exp", "lognorm"):
-        data = pickle.load(open(f"examples/{shape}_estimates_{distr}({Ntext[n]}x{repeat}).pkl", "rb"))
+        data = pickle.load(open(f"examples/{shape}_estimates_{distr}({n}).pkl", "rb"))
         # Saved data from Example 5:
         # [0] = sizes, [1] = areas, [2] = v_pts, [3] = x_pts, [4] = y_pts_A, [5] = y_pts_AV,
         # [6] = y_pts_biased_A, [7] = y_pts_biased_AV, [8] = x_pts_avg, [9] = y_pts_A_avg, [10] = y_pts_AV_avg,
@@ -696,112 +636,3 @@ for n in range(len(N)):
               f"{np.quantile(errors[i+1] - errors[i], 0.975):.4f})$ \\\\")
         i += 2
 print(f"        \hline % {shape.capitalize()}")
-
-
-############################################ Example 7: pairwise errors of above #######################################
-# shape = "cube"  # "tetrahedron" / "cube" / "dodecahedron"
-# N = [1000, 2000, 5000, 10000]  # [1000 / 2000 / 5000 / 10000]
-# ############ Do not alter below ############
-# N = np.array(N)
-# Ntext = []
-# tens = (N == 1000) + (N == 10000)
-# for i in range(len(N)):
-#     if tens[i]:
-#         Ntext.append(f"{np.log10(N)[i]:.0f}")
-#     else:
-#         Ntext.append(f"{np.log10(N)[i]:.1f}")
-#
-# repeat = 100
-# i = 0
-# mu, sigma = 2, 0.5
-# errors = np.zeros((2*len(N), 2, repeat), dtype=float)
-# errors_biased = np.zeros((2*len(N), 2, repeat), dtype=float)
-#
-# for n in range(len(N)):
-#     for distr in ("exp", "lognorm"):
-#         data = pickle.load(open(f"examples/{shape}_estimates_{distr}({Ntext[n]}x{repeat}).pkl", "rb"))
-#         # Saved data from Example 5:
-#         # [0] = sizes, [1] = areas, [2] = v_pts, [3] = x_pts, [4] = y_pts_A, [5] = y_pts_AV,
-#         # [6] = y_pts_biased_A, [7] = y_pts_biased_AV, [8] = x_pts_avg, [9] = y_pts_A_avg, [10] = y_pts_AV_avg,
-#         # [11] = y_pts_biased_A_avg, [12] = y_pts_biased_AV_avg.
-#
-#         # True biased and unbiased distributions:
-#         x_true = np.linspace(0, np.max(data[3]), 100000)
-#         if distr == "exp":
-#             y_true = expon.cdf(x_true)  # The exp(1) distribution.
-#             y_true_biased = gamma.cdf(x_true, a=2, scale=1)  # The gamma(2, 1) distribution.
-#         elif distr == "lognorm":
-#             y_true = lognorm.cdf(x_true, sigma, scale=np.exp(mu))  # The lognormal(mu, sigma) distribution.
-#             y_true_biased = lognorm.cdf(x_true, sigma, scale=np.exp(mu + sigma ** 2))  # ln(mu + sigma^2, sigma).
-#
-#         # Errors: differences in distances of each estimate to truth.
-#         errors[i] = pu.error_pairwise_estimate(x_true, y_true, data[3][:, 1:-1],
-#                                                data[4][:, 1:-1], data[5][:, 1:-1])  # A vs AV unbiased.
-#         errors_biased[i] = pu.error_pairwise_estimate(x_true, y_true_biased, data[3][:, 1:-1],
-#                                                       data[6][:, 1:-1], data[7][:, 1:-1])  # A vs AV biased.
-#         i += 1  # Next entries for errors(_biased) in next iteration.
-#
-# # Entries in errors(_biased):
-# # [2n+0] = A vs AV & exp,   [2n+1] = A vs AV & lognorm.
-#
-# # Latex format results to be used in tabular. Header differences:
-# print("""\\rowcolor{gray!10}
-#         \multicolumn{2}{c|}{\\rule{0pt}{10pt}Estimates of $H^b$}
-#         &\multicolumn{2}{c|}{Infimum of pair-wise difference} &\multicolumn{2}{c}{Supremum of pair-wise difference} \\\\
-#         \\rowcolor{gray!10}
-#         $n$ &$H$ &mean &(min, max) &mean &(min, max) \\\\
-#         \hline""")
-# for n in range(len(N)):
-#     i = 2 * n  # Reset counter.
-#     for distr in ("Exponential", "Log-normal"):
-#         # Content row i: N[n] & distr.
-#         print(f"        ${N[n]}$ &\\textit{{{distr}}} &${errors_biased[i, 0].mean():.4f}$ "
-#               f"&$({errors_biased[i, 0].min():.4f}, {errors_biased[i, 0].max():.4f})$ "
-#               f"&${errors_biased[i, 1].mean():.4f}$ "
-#               f"&$({errors_biased[i, 1].min():.4f}, {errors_biased[i, 1].max():.4f})$ \\\\")
-#         i += 1
-#
-# print("""        \hline \hline
-#         \\rowcolor{gray!10}
-#         \multicolumn{2}{c|}{\\rule{0pt}{10pt}Estimates of $H$}
-#         &\multicolumn{2}{c|}{Infimum of pair-wise difference} &\multicolumn{2}{c}{Supremum of pair-wise difference} \\\\
-#         \\rowcolor{gray!10}
-#         $n$ &$H$ &mean &(min, max) &mean &(min, max) \\\\
-#         \hline""")
-# for n in range(len(N)):
-#     i = 2 * n  # Reset counter.
-#     for distr in ("Exponential", "Log-normal"):
-#         # Content row i: N[n] & distr.
-#         print(f"        ${N[n]}$ &\\textit{{{distr}}} &${errors[i, 0].mean():.4f}$ "
-#               f"&$({errors[i, 0].min():.4f}, {errors[i, 0].max():.4f})$ "
-#               f"&${errors[i, 1].mean():.4f}$ "
-#               f"&$({errors[i, 1].min():.4f}, {errors[i, 1].max():.4f})$ \\\\")
-#         i += 1
-# print(f"        \hline % {shape.capitalize()}")
-
-
-########################################## Example 8: approximations of g per v ########################################
-# Smax = np.sqrt(reference_sample[0].max())
-# Vmax = reference_sample[1].max()
-#
-#
-# def g_per_v_density(x_axis, verts: int):
-#     g = cs[0][verts](x_axis)
-#     g[g < 0] = 0.0
-#     g[x_axis > Smax * 1.05] = 0.0
-#     g[x_axis < 0] = 0.0
-#     return g
-#
-#
-# # Only works after running example 5 with include_num_verts = True, otherwise the cs functions are not defined.
-# x_axis = np.linspace(0, Smax * 1.05, 2000)
-# y_axis = []
-# plt.figure()
-# for v in range(Vmax - 2):
-#     y_axis.append(g_per_v_density(x_axis, v))
-#     plt.plot(x_axis, y_axis[v], label=v + 3)
-# plt.xlim(0, Smax * 1.05)
-# plt.xlabel("Square root of area")
-# plt.ylabel("Density")
-# plt.legend(title="Number of vertices")
-# plt.savefig(f"{shape}_approx_g_per_v.png", dpi=600)
